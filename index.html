@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mustafa Topsakal — Coğrafya &amp; CBS Araştırmacısı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F5EF;
+    --paper-alt:#EFEBE1;
+    --ink:#1D2B27;
+    --ink-soft:#4A5650;
+    --contour:#3C6255;
+    --contour-soft:#7C9C8E;
+    --sand:#A9906E;
+    --rule:#D8D3C4;
+    --accent-line:#C4432E;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+  }
+
+  /* Background contour texture */
+  .contour-bg{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    opacity:1;
+  }
+
+  a{color:var(--contour); text-decoration-color: var(--contour-soft);}
+  a:hover{color:var(--accent-line);}
+
+  .layout{
+    position:relative;
+    z-index:1;
+    display:flex;
+    min-height:100vh;
+    max-width:1240px;
+    margin:0 auto;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar{
+    width:280px;
+    flex-shrink:0;
+    padding:48px 28px 40px 8px;
+    border-right:1px solid var(--rule);
+    position:sticky;
+    top:0;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .id-block{
+    margin-bottom:36px;
+  }
+
+  .coord{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--sand);
+    letter-spacing:0.02em;
+    margin-bottom:14px;
+  }
+
+  .name{
+    font-family:var(--serif);
+    font-size:26px;
+    font-weight:600;
+    line-height:1.15;
+    margin:0 0 8px 0;
+    color:var(--ink);
+  }
+
+  .role{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+
+  nav.tabs{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    flex:1;
+  }
+
+  .tab-item{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    padding:9px 10px;
+    border-radius:3px;
+    cursor:pointer;
+    font-size:14px;
+    color:var(--ink-soft);
+    border-left:2px solid transparent;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    background:none;
+    border-top:none; border-right:none; border-bottom:none;
+    text-align:left;
+    font-family:var(--sans);
+    width:100%;
+  }
+
+  .tab-item .tag{
+    font-family:var(--mono);
+    font-size:10px;
+    color:var(--contour-soft);
+    width:20px;
+    flex-shrink:0;
+  }
+
+  .tab-item:hover{
+    background:var(--paper-alt);
+    color:var(--ink);
+  }
+
+  .tab-item.active{
+    background:var(--paper-alt);
+    color:var(--ink);
+    border-left-color:var(--contour);
+    font-weight:500;
+  }
+
+  .tab-item.active .tag{ color:var(--contour); }
+
+  .sidebar-footer{
+    margin-top:24px;
+    padding-top:20px;
+    border-top:1px solid var(--rule);
+  }
+
+  .sidebar-links{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 10px;
+  }
+
+  .sidebar-links a{
+    font-size:12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-bottom:1px solid var(--rule);
+  }
+  .sidebar-links a:hover{ color:var(--contour); border-bottom-color:var(--contour); }
+
+  /* Language toggle */
+  .lang-toggle{
+    display:flex;
+    gap:2px;
+    margin-top:18px;
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:2px;
+    width:fit-content;
+  }
+  .lang-btn{
+    font-family:var(--mono);
+    font-size:11px;
+    padding:5px 10px;
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-radius:2px;
+    letter-spacing:0.02em;
+  }
+  .lang-btn.active{
+    background:var(--contour);
+    color:var(--paper);
+  }
+  .lang-btn:hover:not(.active){ color:var(--ink); }
+
+  [data-en]{ }
+  html[lang="en"] [data-tr-only]{ display:none !important; }
+  html[lang="tr"] [data-en-only]{ display:none !important; }
+
+  /* ===== Main content ===== */
+  main{
+    flex:1;
+    min-width:0;
+    padding:56px 56px 100px 56px;
+  }
+
+  .panel{ display:none; animation: fade-in 0.35s ease; }
+  .panel.active{ display:block; }
+
+  @keyframes fade-in{
+    from{ opacity:0; transform:translateY(6px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .panel-eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--sand);
+    margin-bottom:10px;
+  }
+
+  h2.panel-title{
+    font-family:var(--serif);
+    font-size:34px;
+    font-weight:600;
+    margin:0 0 6px 0;
+    color:var(--ink);
+  }
+
+  .panel-sub{
+    font-size:15px;
+    color:var(--ink-soft);
+    max-width:60ch;
+    margin-bottom:36px;
+  }
+
+  .rule{
+    border:none;
+    border-top:1px solid var(--rule);
+    margin:32px 0;
+  }
+
+  /* ===== Hakkımda ===== */
+  .about-grid{
+    display:grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap:48px;
+    align-items:start;
+  }
+
+  .lede{
+    font-family:var(--serif);
+    font-size:20px;
+    line-height:1.55;
+    color:var(--ink);
+    max-width:56ch;
+    margin-bottom:24px;
+  }
+
+  .body-text{
+    font-size:15px;
+    color:var(--ink-soft);
+    max-width:62ch;
+  }
+  .body-text p{ margin:0 0 14px 0; }
+
+  .side-card{
+    background:var(--paper-alt);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:22px 22px;
+  }
+
+  .side-card h3{
+    font-family:var(--sans);
+    font-size:12px;
+    text-transform:none;
+    letter-spacing:0.01em;
+    color:var(--contour);
+    margin:0 0 14px 0;
+    font-weight:600;
+  }
+
+  .fact-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:13.5px;
+    padding:9px 0;
+    border-bottom:1px solid var(--rule);
+  }
+  .fact-row:last-child{ border-bottom:none; }
+  .fact-row .k{ color:var(--ink-soft); }
+  .fact-row .v{ color:var(--ink); font-weight:500; text-align:right; }
+
+  .skill-list{ margin-top:28px; }
+  .skill-item{ margin-bottom:20px; }
+  .skill-item h4{
+    font-family:var(--serif);
+    font-size:16.5px;
+    font-weight:600;
+    margin:0 0 6px 0;
+    color:var(--ink);
+  }
+  .skill-item p{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:0;
+    max-width:68ch;
+  }
+
+  /* ===== Eğitim / timeline ===== */
+  .timeline{
+    position:relative;
+    padding-left:26px;
+    border-left:1px solid var(--rule);
+  }
+  .tl-item{
+    position:relative;
+    padding-bottom:32px;
+  }
+  .tl-item:last-child{ padding-bottom:0; }
+  .tl-item::before{
+    content:'';
+    position:absolute;
+    left:-31px;
+    top:4px;
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:var(--paper);
+    border:2px solid var(--contour);
+  }
+  .tl-years{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--sand);
+    margin-bottom:4px;
+  }
+  .tl-degree{
+    font-family:var(--serif);
+    font-size:19px;
+    font-weight:600;
+    margin:0 0 4px 0;
+  }
+  .tl-place{ font-size:14px; color:var(--ink-soft); margin-bottom:8px; }
+  .tl-detail{ font-size:14px; color:var(--ink-soft); max-width:62ch; }
+  .tl-detail em{ color:var(--ink); font-style:italic; }
+
+  /* Awards */
+  .award-list{ list-style:none; padding:0; margin:0; }
+  .award-list li{
+    padding:16px 0;
+    border-bottom:1px solid var(--rule);
+    font-size:14.5px;
+    color:var(--ink-soft);
+    display:flex;
+    gap:14px;
+  }
+  .award-list li:first-child{ padding-top:0; }
+  .award-list .yr{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--contour);
+    flex-shrink:0;
+    width:42px;
+    padding-top:2px;
+  }
+  .award-list strong{ color:var(--ink); font-weight:600; }
+  .award-list a{ font-size:13px; }
+
+  /* Publications */
+  .pub-group{ margin-bottom:36px; }
+  .pub-group h3{
+    font-family:var(--sans);
+    font-size:12px;
+    color:var(--contour);
+    font-weight:600;
+    margin:0 0 16px 0;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--rule);
+  }
+  .pub-item{
+    font-size:14.5px;
+    color:var(--ink-soft);
+    padding:12px 0;
+    border-bottom:1px solid var(--rule);
+    max-width:72ch;
+  }
+  .pub-item:last-child{ border-bottom:none; }
+  .pub-item .author-self{ color:var(--ink); font-weight:600; }
+  .pub-item .venue{ font-style:italic; }
+  .pub-item a{ font-size:13px; display:inline-block; margin-top:4px; }
+
+  /* Ekler / certs grid */
+  .cert-badge{
+    display:inline-block;
+    background:var(--paper-alt);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:3px 10px;
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:0 6px 6px 0;
+  }
+
+  .note-list{ list-style:none; padding:0; margin:0; }
+  .note-list li{
+    position:relative;
+    padding:12px 0 12px 20px;
+    border-bottom:1px solid var(--rule);
+    font-size:14.5px;
+    color:var(--ink-soft);
+    max-width:70ch;
+  }
+  .note-list li::before{
+    content:'—';
+    position:absolute;
+    left:0;
+    color:var(--sand);
+  }
+  .note-list li:last-child{ border-bottom:none; }
+
+  /* Projects / sites */
+  .project-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+    gap:20px;
+  }
+  .project-card{
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:22px;
+    background:var(--paper-alt);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    transition:border-color 0.15s ease;
+  }
+  .project-card:hover{ border-color:var(--contour-soft); }
+  .project-card .p-tag{
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--sand);
+  }
+  .project-card h4{
+    font-family:var(--serif);
+    font-size:18px;
+    margin:0;
+    color:var(--ink);
+  }
+  .project-card p{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin:0;
+    flex:1;
+  }
+  .project-card .p-link{
+    font-size:13px;
+    font-weight:500;
+  }
+  .placeholder-note{
+    font-size:12.5px;
+    color:var(--sand);
+    font-style:italic;
+    margin-top:4px;
+  }
+
+  /* Social / contact */
+  .social-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px,1fr));
+    gap:16px;
+  }
+  .social-card{
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:18px 20px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--paper-alt);
+  }
+  .social-icon{
+    width:34px; height:34px;
+    border-radius:50%;
+    background:var(--paper);
+    border:1px solid var(--rule);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    color:var(--contour);
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:14px;
+  }
+  .social-name{ font-size:14px; font-weight:600; color:var(--ink); }
+  .social-handle{ font-size:12.5px; color:var(--ink-soft); }
+
+  footer.page-footer{
+    margin-top:60px;
+    padding-top:24px;
+    border-top:1px solid var(--rule);
+    font-size:12.5px;
+    color:var(--sand);
+    font-family:var(--mono);
+  }
+
+  /* Mobile nav toggle */
+  .mobile-bar{ display:none; }
+
+  @media (max-width: 900px){
+    .layout{ flex-direction:column; }
+    .sidebar{
+      position:relative;
+      width:100%;
+      height:auto;
+      border-right:none;
+      border-bottom:1px solid var(--rule);
+      padding:24px 20px;
+    }
+    nav.tabs{ display:none; }
+    nav.tabs.open{ display:flex; }
+    .mobile-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      cursor:pointer;
+      padding:10px 0;
+      border-top:1px solid var(--rule);
+      margin-top:16px;
+      font-size:13px;
+      color:var(--ink-soft);
+    }
+    main{ padding:36px 20px 80px 20px; }
+    .about-grid{ grid-template-columns:1fr; }
+    h2.panel-title{ font-size:26px; }
+  }
+</style>
+</head>
+<body>
+
+<svg class="contour-bg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="hexgrid" width="51.96" height="90" patternUnits="userSpaceOnUse">
+      <path d="M25.98,0 L51.96,15 L51.96,45 L25.98,60 L0,45 L0,15 Z" fill="none" stroke="#3C6255" stroke-width="0.6"/>
+      <path d="M25.98,60 L51.96,75 L51.96,105 L25.98,120 L0,105 L0,75 Z" fill="none" stroke="#3C6255" stroke-width="0.6"/>
+      <path d="M0,-15 L25.98,0 L25.98,30 L0,45 L-25.98,30 L-25.98,0 Z" fill="none" stroke="#3C6255" stroke-width="0.6"/>
+      <path d="M51.96,-15 L77.94,0 L77.94,30 L51.96,45 L25.98,30 L25.98,0 Z" fill="none" stroke="#3C6255" stroke-width="0.6"/>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="1200" height="900" fill="url(#hexgrid)" opacity="0.05"/>
+</svg>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="id-block">
+      <div class="coord" data-en="40.986° N, 39.726° E — Trabzon">40.986° N, 39.726° E — Trabzon</div>
+      <h1 class="name">Mustafa<br>Topsakal</h1>
+      <div class="role" data-en="Expert Geographer · Geomorphologist<br>GIS &amp; Hydrology Researcher">Uzman Coğrafyacı · Jeomorfolog<br>CBS &amp; Hidroloji Araştırmacısı</div>
+    </div>
+
+    <div class="mobile-bar" onclick="document.querySelector('nav.tabs').classList.toggle('open')">
+      <span data-en="Sections">Bölümler</span>
+      <span>▾</span>
+    </div>
+
+    <nav class="tabs">
+      <button class="tab-item active" data-tab="hakkimda"><span class="tag">01</span><span data-en="About">Hakkımda</span></button>
+      <button class="tab-item" data-tab="egitim"><span class="tag">02</span><span data-en="Education">Eğitim</span></button>
+      <button class="tab-item" data-tab="odul"><span class="tag">03</span><span data-en="Awards &amp; Honors">Ödüller &amp; Onurlar</span></button>
+      <button class="tab-item" data-tab="yayin"><span class="tag">04</span><span data-en="Publications">Yayınlar</span></button>
+      <button class="tab-item" data-tab="ekler"><span class="tag">05</span><span data-en="Additional &amp; Certificates">Ekler &amp; Sertifikalar</span></button>
+      <button class="tab-item" data-tab="projeler"><span class="tag">06</span><span data-en="My Websites">Web Sitelerim</span></button>
+      <button class="tab-item" data-tab="hydromachine"><span class="tag">07</span>HydroMachine</button>
+      <button class="tab-item" data-tab="muzik"><span class="tag">08</span><span data-en="Music">Müzik</span></button>
+      <button class="tab-item" data-tab="iletisim"><span class="tag">09</span><span data-en="Contact">İletişim</span></button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-links">
+        <a href="https://orcid.org/0000-0003-3407-1790" target="_blank" rel="noopener">ORCID</a>
+        <a href="https://t.co/AvKAlTLf8t" target="_blank" rel="noopener">Google Scholar</a>
+        <a href="#" data-social="webofscience" title="ID: OCL-6179-2025">Web of Science</a>
+        <a href="https://twitter.com/mstf_topsakal" target="_blank" rel="noopener">X / Twitter</a>
+        <a href="https://www.instagram.com/incredibleoflu" target="_blank" rel="noopener">Instagram</a>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="tr">TR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+        <section class="panel active" id="hakkimda">
+      <div class="panel-eyebrow" data-en="Profile">Profil</div>
+      <h2 class="panel-title" data-en="About">Hakkımda</h2>
+      <div class="panel-sub" data-en="Geographer from Bursa Uludağ University, working on geomorphology, surface hydrology, and dam risk analysis.">Bursa Uludağ Üniversitesi'nden coğrafyacı; jeomorfoloji, yüzey hidrolojisi ve baraj risk analizi üzerine çalışıyorum.</div>
+
+      <div class="about-grid">
+        <div>
+          <p class="lede" data-en="I work in physical geography, geomorphology, geographic information systems, and remote sensing — supporting this work with GIS-based toolboxes and software I develop in Python.">Fiziki coğrafya, jeomorfoloji, coğrafi bilgi sistemleri ve uzaktan algılama alanlarında çalışıyor; bu çalışmaları CBS tabanlı araç kutuları ve Python ile geliştirdiğim yazılımlarla destekliyorum.</p>
+          <div class="body-text">
+            <p data-en="I completed my master's thesis on determining the influence of watershed processes on dam risk classification methods, using the dams of the Nilüfer Stream Basin as a case study, under the supervision of Prof. Dr. Hasan Özdemir. I completed my undergraduate and graduate studies at Bursa Uludağ University with honors and high honors, respectively.">Yüksek lisans tezimi Nilüfer Çayı Havzası barajları örneği üzerinden, baraj risk sınıflandırma metotlarında havza süreçlerinin etkisinin belirlenmesi üzerine Prof. Dr. Hasan Özdemir danışmanlığında tamamladım. Lisans ve yüksek lisans eğitimimi Bursa Uludağ Üniversitesi'nde sırasıyla onur ve yüksek onur dereceleriyle tamamladım.</p>
+            <p data-en="Most of my work centers on spatial data processing, basin morphometry, and flood susceptibility analysis. The HydroMachine Toolbox I developed in this field is a GIS tool that automates index-based flood susceptibility calculations and basin morphometry analyses at the regional scale.">Çalışmalarımın büyük bölümü mekânsal veri işleme, havza morfometrisi ve taşkın duyarlılık analizi etrafında şekilleniyor. Bu alanlarda geliştirdiğim HydroMachine Toolbox, bölgesel ölçekte dizin bazlı taşkın duyarlılığı hesaplamalarını ve havza morfometrisi analizlerini otomatikleştiren bir CBS aracı.</p>
+            <p data-en="Alongside my academic work, I am a co-founder of Flowseer and remain active in the field of social entrepreneurship.">Akademik çalışmalarımın yanı sıra Flowseer'ın kurucu ortağıyım ve sosyal girişimcilik alanında da aktif olarak yer alıyorum.</p>
+          </div>
+
+          <div class="skill-list">
+            <div class="skill-item">
+              <h4 data-en="ArcGIS &amp; SAGA">ArcGIS &amp; SAGA</h4>
+              <p data-en="I use ArcGIS Desktop, ArcGIS Pro, and SAGA at an advanced level, working on spatial data processing, analysis, and GIS toolbox development.">ArcGIS Desktop, ArcGIS Pro ve SAGA'yı ileri düzeyde kullanıyorum; mekânsal veri işleme, analiz ve CBS araç kutusu geliştirme üzerine çalışıyorum.</p>
+            </div>
+            <div class="skill-item">
+              <h4 data-en="Python Programming">Python Programlama</h4>
+              <p data-en="I develop plugins and supporting software for various GIS programs using Python. I have experience in data analysis, preprocessing, algorithm design, and workflow automation for complex scientific datasets.">CBS programları için eklenti ve destekleyici yazılımlar geliştiriyorum; veri analizi, ön işleme, algoritma tasarımı ve karmaşık bilimsel veri kümeleri için iş akışı otomasyonu konularında deneyimliyim.</p>
+            </div>
+            <div class="skill-item">
+              <h4 data-en="Big Data &amp; Artificial Intelligence">Büyük Veri ve Yapay Zekâ</h4>
+              <p data-en="I have experience processing, validating, and integrating multi-source datasets (raster, vector, textual), and I develop integrated software packages that combine spatial datasets with machine learning.">Çok kaynaklı veri kümelerini (raster, vektör, metinsel) işleme, doğrulama ve entegrasyon konusunda deneyimliyim; mekânsal veri setlerini makine öğrenimiyle entegre eden paket programlar geliştiriyorum.</p>
+            </div>
+            <div class="skill-item">
+              <h4 data-en="Data Visualization &amp; MS Office">Veri Görselleştirme ve MS Office</h4>
+              <p data-en="I use ArcGIS and Excel at an advanced level for scientific figures, maps, and infographics, and I use Excel, Word, and PowerPoint for scientific reporting and presentations.">Bilimsel şekiller, haritalar ve infografikler için ArcGIS ve Excel'i; raporlama ve sunumlar için Excel, Word ve PowerPoint'i ileri düzeyde kullanıyorum.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <h3 data-en="Quick Facts">Kısa Bilgi</h3>
+          <div class="fact-row"><span class="k" data-en="Expertise">Uzmanlık</span><span class="v" data-en="Geomorphology, Hydrology">Jeomorfoloji, Hidroloji</span></div>
+          <div class="fact-row"><span class="k" data-en="Location">Konum</span><span class="v" data-en="Trabzon, Türkiye">Trabzon, Türkiye</span></div>
+          <div class="fact-row"><span class="k" data-en="Languages">Diller</span><span class="v" data-en="Turkish (Native), English (B1)">Türkçe (Anadil), İng. (B1)</span></div>
+          <div class="fact-row"><span class="k" data-en="Titles">Unvan</span><span class="v" data-en="Expert Geographer, Geomorphologist (Lv. 6), GIS Operator (Lv. 4)">Uzman Coğrafyacı, Jeomorfolog (Sv. 6), CBS Operatörü (Sv. 4)</span></div>
+          <div class="fact-row"><span class="k">ORCID</span><span class="v"><a href="https://orcid.org/0000-0003-3407-1790" target="_blank" rel="noopener">0000-0003-3407-1790</a></span></div>
+        </div>
+      </div>
+    </section>
+
+        <section class="panel" id="egitim">
+      <div class="panel-eyebrow" data-en="Academic Background">Akademik Geçmiş</div>
+      <h2 class="panel-title" data-en="Education">Eğitim</h2>
+      <div class="panel-sub" data-en="Undergraduate and graduate education in Geography, Bursa Uludağ University.">Coğrafya alanında lisans ve yüksek lisans eğitimi, Bursa Uludağ Üniversitesi.</div>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-years">2022 — 2025</div>
+          <h3 class="tl-degree" data-en="M.A., Geography">Yüksek Lisans, Coğrafya</h3>
+          <div class="tl-place" data-en="Bursa Uludağ University — Institute of Social Sciences · Specialization: Physical Geography, Geomorphology, Surface Hydrology and Dams">Bursa Uludağ Üniversitesi — Sosyal Bilimler Enstitüsü · Uzmanlık: Fiziki Coğrafya, Jeomorfoloji, Yüzey Hidrolojisi ve Barajlar</div>
+          <div class="tl-detail" data-en="<em>Thesis:</em> Determining the Influence of Watershed Processes on Dam Risk Classification Methods — The Case of Dams in the Nilüfer Stream Basin<br><em>Advisor:</em> Prof. Dr. Hasan Özdemir<br><em>Degree:</em> Graduated with High Honors, GPA: 3.74">
+            <em>Tez:</em> Baraj Risk Sınıflandırma Metotlarında Havza Süreçlerinin Etkisinin Belirlenmesi — Nilüfer Çayı Havzası Barajları Örneği<br>
+            <em>Danışman:</em> Prof. Dr. Hasan Özdemir<br>
+            <em>Derece:</em> Yüksek Onur Derecesiyle Mezun, GANO: 3,74
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-years">2018 — 2022</div>
+          <h3 class="tl-degree" data-en="B.A., Geography">Lisans, Coğrafya</h3>
+          <div class="tl-place" data-en="Bursa Uludağ University — Faculty of Arts and Sciences">Bursa Uludağ Üniversitesi — Fen-Edebiyat Fakültesi</div>
+          <div class="tl-detail" data-en="<em>Degree:</em> Graduated with Honors, GPA: 3.03">
+            <em>Derece:</em> Onur Derecesiyle Mezun, GANO: 3,03
+          </div>
+        </div>
+      </div>
+
+      <hr class="rule">
+
+      <div class="side-card" style="max-width:640px;">
+        <h3 data-en="Research Group Membership">Bilimsel Çalışma Grubu Üyeliği</h3>
+        <div class="fact-row"><span class="k" data-en="Hydrology Group">Hidroloji Grubu</span><span class="v" data-en="Bursa Uludağ University (2023–2025)">Bursa Uludağ Üniversitesi (2023–2025)</span></div>
+        <div style="margin-top:10px;"><a href="https://avesis.uludag.edu.tr/researchteamsite/hydro" target="_blank" rel="noopener" style="font-size:13px;" data-en="View group page →">Grup sayfasını görüntüle →</a></div>
+      </div>
+    </section>
+
+        <section class="panel" id="odul">
+      <div class="panel-eyebrow" data-en="Recognition">Tanınırlık</div>
+      <h2 class="panel-title" data-en="Awards &amp; Honors">Ödüller &amp; Onurlar</h2>
+      <div class="panel-sub" data-en="Support and awards I have received for academic achievement, research, and entrepreneurship.">Akademik başarı, araştırma ve girişimcilik alanlarında aldığım destek ve ödüller.</div>
+
+      <ul class="award-list">
+        <li>
+          <span class="yr">2022</span>
+          <span data-en='<strong>Master&rsquo;s Thesis Support Award</strong> — Bursa Metropolitan Municipality, BURSKOOP Support Program for Master&rsquo;s and Doctoral Studies themed &ldquo;Smart, Resilient and Sustainable Cities,&rdquo; Bursa.<br><a href="https://yarismalar.bursa.bel.tr/yarisma/yuksek-lisans-ve-doktoraya-750-000-tl-destek-2/" target="_blank" rel="noopener">Program details →</a>'><strong>Yüksek Lisans Tez Destek Ödülü</strong> — Bursa Büyükşehir Belediyesi, BURSKOOP "Akıllı, Dayanıklı ve Sürdürülebilir Şehirler" temalı Yüksek Lisans ve Doktora Çalışmaları Programı Desteği, Bursa.<br>
+          <a href="https://yarismalar.bursa.bel.tr/yarisma/yuksek-lisans-ve-doktoraya-750-000-tl-destek-2/" target="_blank" rel="noopener">Program detayları →</a></span>
+        </li>
+        <li>
+          <span class="yr">2025</span>
+          <span data-en='<strong>FoodBack 2025 — Winner, Food Impact Entrepreneurship Camp</strong> — Flowseer, Co-Founder. FoodBack Entrepreneurship Program Support, Türkiye.<br><a href="https://www.instagram.com/p/DOOg-9GCBZa/" target="_blank" rel="noopener">Instagram announcement →</a> · <a href="https://www.linkedin.com/feed/update/urn:li:activity:7369765012879433729/" target="_blank" rel="noopener">LinkedIn announcement →</a>'><strong>FoodBack 2025 — Gıdada Etki Girişimciliği Kampı Birincisi</strong> — Flowseer, Kurucu Ortak. FoodBack Girişimcilik Programı Desteği, Türkiye.<br>
+          <a href="https://www.instagram.com/p/DOOg-9GCBZa/" target="_blank" rel="noopener">Instagram duyurusu →</a> · <a href="https://www.linkedin.com/feed/update/urn:li:activity:7369765012879433729/" target="_blank" rel="noopener">LinkedIn duyurusu →</a></span>
+        </li>
+        <li>
+          <span class="yr">2025</span>
+          <span data-en="<strong>Research Award</strong> — Eurasian Press Association, &ldquo;The Press in Our Country and the Local Press in Trabzon&rdquo; Program — for the work <em>Natural Disasters in Trabzon from Past to Present</em>, Trabzon."><strong>Araştırma Ödülü</strong> — Avrasya Basın Yayın Birliği, "Ülkemizde Basın ve Trabzon'da Yerel Basın" Programı — <em>Geçmişten Günümüze Trabzon'da Doğal Afetler</em> adlı eserle, Trabzon.</span>
+        </li>
+        <li>
+          <span class="yr">2022</span>
+          <span data-en="<strong>Graduated with Honors</strong> — Geography Undergraduate Program, Bursa Uludağ University, GPA: 3.03"><strong>Onur Derecesiyle Mezuniyet</strong> — Coğrafya Lisans Programı, Bursa Uludağ Üniversitesi, GANO: 3,03</span>
+        </li>
+        <li>
+          <span class="yr">2025</span>
+          <span data-en="<strong>Graduated with High Honors</strong> — Geography Master&rsquo;s Program, Bursa Uludağ University, GPA: 3.74"><strong>Yüksek Onur Derecesiyle Mezuniyet</strong> — Coğrafya Yüksek Lisans Programı, Bursa Uludağ Üniversitesi, GANO: 3,74</span>
+        </li>
+      </ul>
+
+      <hr class="rule">
+
+      <div class="panel-eyebrow" style="margin-top:0;" data-en="Organizational Activities">Organizasyonel Faaliyetler</div>
+      <p class="body-text" style="margin-top:8px;" data-en="Organizing Committee Member — GIS Day Scientific Congress, Bursa (2022)">Organizasyon Komitesi Üyeliği — GIS Günü Bilimsel Kongresi, Bursa (2022)</p>
+    </section>
+
+        <section class="panel" id="yayin">
+      <div class="panel-eyebrow" data-en="Academic Output">Akademik Üretim</div>
+      <h2 class="panel-title" data-en="Publications">Yayınlar</h2>
+      <div class="panel-sub" data-en="My articles, conference papers, and book contributions.">Makale, bildiri ve kitap çalışmalarım.</div>
+
+      <div class="pub-group">
+        <h3 data-en="Articles">Makaleler</h3>
+        <div class="pub-item" data-en='<span class="author-self">Topsakal, M.,</span> Doğan, E., Yasak, S. S., &amp; Özdemir, H. (2026). Strahler-method-based morphometric analysis of Turkey&rsquo;s river basins. <span class="venue">Turkish Journal of Geography, 89</span>, 127&ndash;142.<br><a href="https://doi.org/10.17211/tcd.1896223" target="_blank" rel="noopener">DOI: 10.17211/tcd.1896223 &rarr;</a>'>
+          <span class="author-self">Topsakal, M.,</span> Doğan, E., Yasak, S. S., &amp; Özdemir, H. (2026). Türkiye akarsu havzalarının Strahler metodu temelli morfometrik analizi. <span class="venue">Türk Coğrafya Dergisi, 89</span>, 127–142.<br>
+          <a href="https://doi.org/10.17211/tcd.1896223" target="_blank" rel="noopener">DOI: 10.17211/tcd.1896223 →</a>
+        </div>
+        <div class="pub-item">
+          <span class="author-self">Topsakal, M.,</span> Dogan, E., Yasak, S.S. et al. Basin morphometry? It is no longer an issue with HydroMachine toolbox. <span class="venue">Environ Earth Sci 84</span>, 342 (2025).<br>
+          <a href="https://doi.org/10.1007/s12665-025-12352-8" target="_blank" rel="noopener">DOI: 10.1007/s12665-025-12352-8 →</a>
+        </div>
+      </div>
+
+      <div class="pub-group">
+        <h3 data-en="Conference Papers">Bildiriler</h3>
+        <div class="pub-item" data-en='Yasak, S. S., Doğan, E., <span class="author-self">Topsakal, M.,</span> Akbaş, A., &amp; Özdemir, H. (2024). The role of social media in disaster management: the case of the February 6, 2023 Kahramanmaraş earthquakes. <span class="venue">11th Turkish Quaternary Symposium</span>, 95.'>Yasak, S. S., Doğan, E., <span class="author-self">Topsakal, M.,</span> Akbaş, A., &amp; Özdemir, H. (2024). Sosyal medyanın afet yönetimindeki rolü: 6 Şubat 2023 Kahramanmaraş depremleri örneği. <span class="venue">11. Türkiye Kuvaterner Sempozyumu</span>, 95.</div>
+        <div class="pub-item" data-en='<span class="author-self">Topsakal, M.,</span> Doğan, E., Yasak, S. S., Çorapçı, F., &amp; Özdemir, H. (2024). Regional-scale index-based flood susceptibility calculation with the HydroMachine Toolbox. <span class="venue">11th Turkish Quaternary Symposium</span>, 16&ndash;17.'><span class="author-self">Topsakal, M.,</span> Doğan, E., Yasak, S. S., Çorapçı, F., &amp; Özdemir, H. (2024). HydroMachine Toolbox ile bölgesel ölçekte dizin bazlı taşkın duyarlılığının hesaplanması. <span class="venue">11. Türkiye Kuvaterner Sempozyumu</span>, 16–17.</div>
+        <div class="pub-item" data-en='Yasak, S. S., Doğan, E., <span class="author-self">Topsakal, M.,</span> Akbaş, A., &amp; Özdemir, H. (2024). Spatio-temporal analysis of natural disasters using social media data: the case of the February 6, 2023 Kahramanmaraş earthquakes. <span class="venue">TUCAUM 2024 International Geography Symposium.</span>'>Yasak, S. S., Doğan, E., <span class="author-self">Topsakal, M.,</span> Akbaş, A., &amp; Özdemir, H. (2024). Sosyal medya verileri ile doğal afetlerin mekansal–zamansal analizi: 6 Şubat 2023 Kahramanmaraş depremleri örneği. <span class="venue">TÜCAUM 2024 Uluslararası Coğrafya Sempozyumu.</span></div>
+        <div class="pub-item" data-en='<span class="author-self">Topsakal, M.,</span> Doğan, E., Yasak, S. S., Çorapçı, F., Akbaş, A., &amp; Özdemir, H. (2024). The Hydromachine Toolbox and its applicability in basin morphometry. <span class="venue">International Geomorphology Symposium 2024</span>, 7&ndash;8.'><span class="author-self">Topsakal, M.,</span> Doğan, E., Yasak, S. S., Çorapçı, F., Akbaş, A., &amp; Özdemir, H. (2024). Hydromachine Toolbox ve havza morfometrisindeki kullanım kabiliyeti. <span class="venue">Uluslararası Jeomorfoloji Sempozyumu 2024</span>, 7–8.</div>
+        <div class="pub-item" data-en='<span class="author-self">Topsakal, M.,</span> Doğan, E., Yasak, S. S., Çorapçı, F., Akbaş, A., &amp; Özdemir, H. (2024). A new GIS toolbox for basin morphometry and flood susceptibility analysis: Hydromachine and its regional-scale application. <span class="venue">XII. National Hydrology Congress, 1</span>, 30&ndash;32.'><span class="author-self">Topsakal, M.,</span> Doğan, E., Yasak, S. S., Çorapçı, F., Akbaş, A., &amp; Özdemir, H. (2024). Havza morfometrisi ve taşkın duyarlılık analizlerinde yeni bir CBS araç kutusu: Hydromachine ve bölgesel ölçekte kullanımı. <span class="venue">XII. Ulusal Hidroloji Kongresi, 1</span>, 30–32.</div>
+      </div>
+
+      <div class="pub-group">
+        <h3 data-en="Books">Kitaplar</h3>
+        <div class="pub-item" data-en='Erol, F. and <span class="author-self">Topsakal, M.</span> (2024). Natural disasters in Trabzon from past to present. <span class="venue">Trabzon Metropolitan Municipality Culture Publications.</span><br><a href="https://webdata.trabzon.bel.tr/WebAdmin/BasitBaglanti/20241014104602IWSop.pdf" target="_blank" rel="noopener">View the book &rarr;</a>'>Erol, F. ve <span class="author-self">Topsakal, M.</span> (2024). Geçmişten günümüze Trabzon'da doğal afetler. <span class="venue">Trabzon Büyükşehir Belediyesi Kültür Yayınları.</span><br>
+        <a href="https://webdata.trabzon.bel.tr/WebAdmin/BasitBaglanti/20241014104602IWSop.pdf" target="_blank" rel="noopener">Kitabı görüntüle →</a></div>
+      </div>
+    </section>
+
+        <section class="panel" id="ekler">
+      <div class="panel-eyebrow" data-en="Additional Information">Ek Bilgiler</div>
+      <h2 class="panel-title" data-en="Additional &amp; Certificates">Ekler &amp; Sertifikalar</h2>
+      <div class="panel-sub" data-en="Professional titles, licenses, certificates, and other academic/administrative activities.">Mesleki unvanlar, lisanslar, sertifikalar ve diğer akademik/idari faaliyetlerim.</div>
+
+      <ul class="note-list">
+        <li data-en='In 2021, I earned the title of EU-Turkey Climate Ambassador as part of the "Before It&rsquo;s Too Late" project, supported by the European Union.'>2021 yılında, Avrupa Birliği desteği ile düzenlenen "Geç Olmadan" projesi kapsamında AB-Türkiye İklim Elçisi olmaya hak kazandım.</li>
+        <li data-en="I have a total of 54 hours of certified fieldwork experience in General Geomorphology, Fluvial Geomorphology, and Geographic Information Systems.">Genel Jeomorfoloji, Flüviyal Jeomorfoloji ve Coğrafi Bilgi Sistemleri alanlarında toplam 54 saatlik sertifikalandırılmış arazi deneyimim bulunmaktadır.</li>
+        <li data-en="I served as Chair of the Supervisory Board of the Young Geomorphologists (a subsidiary of the Geomorphology Association) for the 2022–2023 term, and I became a full member of the Geomorphology Association on 07.12.2024.">Jeomorfoloji Derneği alt kuruluşu Genç Jeomorfologların 2022–2023 dönemi Denetleme Kurulu Başkanlığı görevini yürüttüm; 07.12.2024 tarihinde Jeomorfoloji Derneği'nin asil üyeleri arasında yerimi aldım.</li>
+        <li data-en='In 2024, I took part for two academic terms in the "A24B160104" and "A24B1601007" Yurt-Time Sports Projects organized by the Ministry of Youth and Sports.'>2024 yılında Gençlik ve Spor Bakanlığı tarafından düzenlenen "A24B160104" ve "A24B1601007" numaralı Yurt-Time Spor Projelerinde 2 akademik dönem boyunca yer aldım.</li>
+        <li data-en="As my master's thesis was based in geomorphology, I hold the professional title of Geomorphologist (Level 6) under the relevant legislation (Law No. 5544 on the Vocational Qualifications Authority and Article 43/b of Law No. 2547 on Higher Education).">Yüksek lisans tezimi jeomorfoloji temelli gerçekleştirdiğim için ilgili kanunlar (5544 sayılı Mesleki Yeterlilik Kurumu Kanunu ve 2547 sayılı Yükseköğretim Kanunu'nun 43/b maddesi) gereğince Jeomorfolog (Seviye 6) meslek unvanına sahibim.</li>
+        <li data-en="I hold a Level 4 GIS Operator license under national qualification standards — Geographic Information Systems Operator (Level 4), Republic of Türkiye Ministry of Environment, Urbanization and Climate Change / CBSGM (Apr 2026 – Apr 2031), Qualification ID: 16UY0254-4/00.">Ulusal yeterlilik standartlarında Seviye 4 CBS Operatörü lisansına sahibim — Coğrafi Bilgi Sistemleri Operatörü (Seviye 4), T.C. Çevre, Şehircilik ve İklim Değişikliği Bakanlığı / CBSGM (Nis 2026 – Nis 2031), Yeterlilik ID: 16UY0254-4/00.</li>
+      </ul>
+
+      <hr class="rule">
+
+      <div class="panel-eyebrow" style="margin-top:0;" data-en="Peer Review">Hakemlik</div>
+      <ul class="note-list" style="margin-top:14px;">
+        <li data-en='I reviewed 1 manuscript in 2026 for <strong style="color:var(--ink);">Environmental Earth Sciences</strong> (Springer Nature).'><strong style="color:var(--ink);">Environmental Earth Sciences</strong> (Springer Nature) dergisi için 2026 yılında 1 makale hakemliği yaptım.</li>
+      </ul>
+
+      <hr class="rule">
+
+      <div class="panel-eyebrow" style="margin-top:0;" data-en="Training Completed Under TÜBİTAK 2237-A">TÜBİTAK 2237-A Kapsamında Tamamlanan Eğitimler</div>
+      <div style="margin-top:14px;">
+        <span class="cert-badge" data-en="GIS and Natural Disasters (2021)">CBS ve Doğal Afetler (2021)</span>
+        <span class="cert-badge" data-en="Planning and Management of Lake Van Coastal Areas (2021)">Van Gölü Kıyı Alanları Planlama ve Yönetimi (2021)</span>
+        <span class="cert-badge" data-en="Monitoring Land Use with Remote Sensing Techniques (2023)">Uzaktan Algılama ile Arazi Kullanımı İzleme (2023)</span>
+        <span class="cert-badge" data-en="Sustainable Logistics and Risk Management in Disaster Situations (2024)">Afet Durumlarında Lojistik ve Risk Yönetimi (2024)</span>
+        <span class="cert-badge" data-en="Entropy-Based Land Diversity Analysis (2024)">Entropi Temelli Arazi Çeşitliliği Analizi (2024)</span>
+      </div>
+
+      <p class="placeholder-note" style="margin-top:20px;" data-en="I also hold over 70 certified training, participation, and achievement certificates in areas including Artificial Intelligence, Data Science, Software, Social Entrepreneurship, Project Management, and Leadership.">Ayrıca Yapay Zekâ, Veri Bilimi, Yazılım, Sosyal Girişimcilik, Proje Yönetimi ve Liderlik alanlarında 70'ten fazla belgelendirilmiş eğitim, katılım ve başarı sertifikam bulunmaktadır.</p>
+    </section>
+
+        <section class="panel" id="projeler">
+      <div class="panel-eyebrow" data-en="Digital Work">Dijital Çalışmalar</div>
+      <h2 class="panel-title" data-en="My Websites">Web Sitelerim</h2>
+      <div class="panel-sub" data-en="Websites and tools I own or have developed.">Sahibi olduğum veya geliştirdiğim internet siteleri ve araçlar.</div>
+
+      <div class="project-grid">
+        <div class="project-card">
+          <span class="p-tag" data-en="WEB APP">WEB UYGULAMASI</span>
+          <h4>Codexus Veritas</h4>
+          <p data-en="A data-driven web application I developed.">Geliştirdiğim veri odaklı web uygulaması.</p>
+          <a class="p-link" href="https://geographer16.github.io/Codexus-Veritas/" target="_blank" rel="noopener" data-en="Visit site →">Siteyi ziyaret et →</a>
+        </div>
+        <div class="project-card">
+          <span class="p-tag" data-en="WEB APP">WEB UYGULAMASI</span>
+          <h4>SYM-Radar</h4>
+          <p data-en="An application I developed for spatial data analysis and visualization.">Mekânsal veri analizi ve görselleştirmesi üzerine geliştirdiğim bir uygulama.</p>
+          <a class="p-link" href="https://geographer16.github.io/SYM-Radar/" target="_blank" rel="noopener" data-en="Visit site →">Siteyi ziyaret et →</a>
+        </div>
+        <div class="project-card">
+          <span class="p-tag" data-en="WEB APP">WEB UYGULAMASI</span>
+          <h4>Rotasyon</h4>
+          <p data-en="Another web application I developed for geospatial data processing and analysis workflows.">Coğrafi veri işleme ve analiz süreçlerine yönelik geliştirdiğim bir başka web uygulaması.</p>
+          <a class="p-link" href="https://geographer16.github.io/Rotasyon/" target="_blank" rel="noopener" data-en="Visit site →">Siteyi ziyaret et →</a>
+        </div>
+      </div>
+    </section>
+
+        <section class="panel" id="hydromachine">
+      <div class="panel-eyebrow" data-en="GIS Tool">CBS Aracı</div>
+      <h2 class="panel-title">HydroMachine</h2>
+      <div class="panel-sub" data-en="What began as a project to automate basin morphometry workflows is evolving into a comprehensive software framework — expanding into new analytical domains through supporting plugins, ongoing updates, and machine-learning-driven automation modules.">Havza morfometrisi süreçlerini otomatikleştirmek amacıyla başlayan bu proje, zamanla kapsamlı bir çatı yazılım ortamına dönüşme yolunda ilerliyor; destekleyici eklentiler, düzenli güncellemeler ve makine öğrenmesi tabanlı otomasyon modülleriyle farklı analiz alanlarına genişliyor.</div>
+
+      <div class="project-grid">
+        <div class="project-card">
+          <span class="p-tag">YOUTUBE</span>
+          <h4 data-en="HydroMachine Channel">HydroMachine Kanalı</h4>
+          <p data-en="Videos and demos on how to use the toolbox.">Araç kutusunun kullanımına dair videolar ve tanıtımlar.</p>
+          <a class="p-link" href="https://www.youtube.com/@Hydro_Machine" target="_blank" rel="noopener" data-en="Visit channel →">Kanalı ziyaret et →</a>
+        </div>
+        <div class="project-card">
+          <span class="p-tag">ZENODO</span>
+          <h4 data-en="Publication Record">Yayın Kaydı</h4>
+          <p data-en="The archived release of HydroMachine on Zenodo, with its DOI record.">HydroMachine'in Zenodo üzerindeki arşivlenmiş sürümü ve DOI kaydı.</p>
+          <a class="p-link" href="https://zenodo.org/records/15626608" target="_blank" rel="noopener" data-en="View on Zenodo →">Zenodo'da görüntüle →</a>
+        </div>
+        <div class="project-card">
+          <span class="p-tag">GITHUB</span>
+          <h4 data-en="Source Code">Kaynak Kod</h4>
+          <p data-en="The toolbox's open-source code repository.">Araç kutusunun açık kaynak kod deposu.</p>
+          <a class="p-link" href="https://github.com/Geographer16/HydroMachine" target="_blank" rel="noopener" data-en="View on GitHub →">GitHub'da görüntüle →</a>
+        </div>
+      </div>
+    </section>
+
+        <section class="panel" id="muzik">
+      <div class="panel-eyebrow" data-en="Hobby">Hobi</div>
+      <h2 class="panel-title" data-en="Music">Müzik</h2>
+      <div class="panel-sub" data-en="Outside of my academic work, my personal YouTube channel for music as a hobby.">Akademik çalışmalarımın dışında, hobi amaçlı yürüttüğüm kişisel YouTube kanalım.</div>
+
+      <div class="project-grid">
+        <div class="project-card">
+          <span class="p-tag">YOUTUBE</span>
+          <h4>Mustafa Topsakal</h4>
+          <p data-en="My personal channel featuring my music as a hobby.">Hobi amaçlı müzik paylaşımlarımın yer aldığı kişisel kanalım.</p>
+          <a class="p-link" href="https://www.youtube.com/@Mustafa_Topsakal" target="_blank" rel="noopener" data-en="Visit channel →">Kanalı ziyaret et →</a>
+        </div>
+      </div>
+    </section>
+
+        <section class="panel" id="iletisim">
+      <div class="panel-eyebrow" data-en="Connect">Bağlantı</div>
+      <h2 class="panel-title" data-en="Contact &amp; Social Media">İletişim &amp; Sosyal Medya</h2>
+      <div class="panel-sub" data-en="My social media accounts and contact information.">Sosyal medya hesaplarım ve iletişim bilgilerim.</div>
+
+      <div class="social-grid">
+        <div class="social-card">
+          <div class="social-icon">in</div>
+          <div>
+            <div class="social-name"><a href="https://www.linkedin.com/in/topsakalmstf/" target="_blank" rel="noopener">LinkedIn</a></div>
+            <div class="social-handle">topsakalmstf</div>
+          </div>
+        </div>
+        <div class="social-card">
+          <div class="social-icon">X</div>
+          <div>
+            <div class="social-name"><a href="https://twitter.com/mstf_topsakal" target="_blank" rel="noopener">X / Twitter</a></div>
+            <div class="social-handle">@mstf_topsakal</div>
+          </div>
+        </div>
+        <div class="social-card">
+          <div class="social-icon">IG</div>
+          <div>
+            <div class="social-name"><a href="https://www.instagram.com/incredibleoflu" target="_blank" rel="noopener">Instagram</a></div>
+            <div class="social-handle">@incredibleoflu</div>
+          </div>
+        </div>
+        <div class="social-card">
+          <div class="social-icon">@</div>
+          <div>
+            <div class="social-name" data-en="Email">E-posta</div>
+            <div class="social-handle" data-en="Link to be added">Bağlantı eklenecek</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="page-footer">
+        © 2026 Mustafa Topsakal · Trabzon, Türkiye
+      </footer>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-item');
+  const panels = document.querySelectorAll('.panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-tab');
+
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+
+      document.querySelector('nav.tabs').classList.remove('open');
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+
+  document.querySelectorAll('[data-social]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelector('[data-tab="iletisim"]').click();
+    });
+  });
+
+  (function(){
+    const translatable = document.querySelectorAll('[data-en]');
+    translatable.forEach(el => {
+      if(!el.hasAttribute('data-tr')){
+        el.setAttribute('data-tr', el.innerHTML);
+      }
+    });
+
+    const langBtns = document.querySelectorAll('.lang-btn');
+
+    function setLang(lang){
+      document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'tr');
+      translatable.forEach(el => {
+        el.innerHTML = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-tr');
+      });
+      langBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-lang') === lang));
+    }
+
+    langBtns.forEach(btn => {
+      btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang')));
+    });
+  })();
+</script>
+
+</body>
+</html>
