@@ -505,6 +505,9 @@
 
   /* Mobile nav toggle */
   .mobile-bar{ display:none; }
+  .mobile-menu-btn{ display:none; }
+  .mobile-lang-btn{ display:none; }
+  .mobile-nav-overlay{ display:none; }
 
   @media (max-width: 900px){
     .layout{ flex-direction:column; }
@@ -516,23 +519,100 @@
       border-bottom:1px solid var(--rule);
       padding:24px 20px;
     }
-    nav.tabs{ display:none; }
-    nav.tabs.open{ display:flex; }
-    .mobile-bar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      cursor:pointer;
-      padding:10px 0;
-      border-top:1px solid var(--rule);
-      margin-top:16px;
-      font-size:13px;
-      color:var(--ink-soft);
+    nav.tabs{
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:78%;
+      max-width:300px;
+      height:100vh;
+      background:var(--paper);
+      z-index:100;
+      padding:80px 16px 24px 16px;
+      box-shadow:2px 0 24px rgba(0,0,0,0.18);
+      overflow-y:auto;
     }
-    main{ padding:36px 20px 80px 20px; }
+    nav.tabs.open{ display:flex; }
+
+    .mobile-menu-btn{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:5px;
+      position:fixed;
+      top:18px;
+      left:18px;
+      z-index:110;
+      width:40px;
+      height:40px;
+      border-radius:6px;
+      border:1px solid var(--rule);
+      background:var(--paper);
+      cursor:pointer;
+    }
+    .mobile-menu-btn span{
+      display:block;
+      width:18px;
+      height:2px;
+      background:var(--ink);
+    }
+
+    .mobile-lang-btn{
+      display:block;
+      position:fixed;
+      top:18px;
+      right:18px;
+      z-index:110;
+      font-family:var(--mono);
+      font-size:12px;
+      padding:9px 14px;
+      border-radius:6px;
+      border:1px solid var(--rule);
+      background:var(--paper);
+      color:var(--ink-soft);
+      cursor:pointer;
+    }
+
+    .mobile-nav-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(29,43,39,0.35);
+      z-index:99;
+    }
+    .mobile-nav-overlay.open{ display:block; }
+
+    .id-block{ padding-top:8px; }
+    .sidebar-footer{ display:none; }
+
+    main{ padding:36px 20px 40px 20px; }
     .about-grid{ grid-template-columns:1fr; }
     h2.panel-title{ font-size:26px; }
+
+    .mobile-global-footer{
+      display:block;
+      border-top:1px solid var(--rule);
+      padding:28px 20px 36px 20px;
+      position:relative;
+      z-index:1;
+    }
+    .mobile-footer-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 16px;
+      justify-content:center;
+    }
+    .mobile-footer-links a{
+      font-size:12.5px;
+      color:var(--ink-soft);
+      text-decoration:none;
+      border-bottom:1px solid var(--rule);
+    }
   }
+
+  .mobile-global-footer{ display:none; }
 </style>
 </head>
 <body>
@@ -557,10 +637,13 @@
       <div class="role" data-en="Expert Geographer · Geomorphologist<br>GIS &amp; Hydrology Researcher">Uzman Coğrafyacı · Jeomorfolog<br>CBS &amp; Hidroloji Araştırmacısı</div>
     </div>
 
-    <div class="mobile-bar" onclick="document.querySelector('nav.tabs').classList.toggle('open')">
-      <span data-en="Sections">Bölümler</span>
-      <span>▾</span>
-    </div>
+    <button class="mobile-menu-btn" onclick="document.querySelector('nav.tabs').classList.toggle('open'); document.querySelector('.mobile-nav-overlay').classList.toggle('open');" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <button class="mobile-lang-btn">EN</button>
+
+    <div class="mobile-nav-overlay" onclick="document.querySelector('nav.tabs').classList.remove('open'); this.classList.remove('open');"></div>
 
     <nav class="tabs">
       <button class="tab-item active" data-tab="hakkimda"><span class="tag">01</span><span data-en="About">Hakkımda</span></button>
@@ -888,6 +971,16 @@
   </main>
 </div>
 
+<footer class="mobile-global-footer">
+  <div class="mobile-footer-links">
+    <a href="https://orcid.org/0000-0003-3407-1790" target="_blank" rel="noopener">ORCID</a>
+    <a href="https://t.co/AvKAlTLf8t" target="_blank" rel="noopener">Google Scholar</a>
+    <a href="#" data-social="webofscience" title="ID: OCL-6179-2025">Web of Science</a>
+    <a href="https://twitter.com/mstf_topsakal" target="_blank" rel="noopener">X / Twitter</a>
+    <a href="https://www.instagram.com/incredibleoflu" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</footer>
+
 <script>
   const tabs = document.querySelectorAll('.tab-item');
   const panels = document.querySelectorAll('.panel');
@@ -903,6 +996,8 @@
       document.getElementById(target).classList.add('active');
 
       document.querySelector('nav.tabs').classList.remove('open');
+      const overlay = document.querySelector('.mobile-nav-overlay');
+      if(overlay) overlay.classList.remove('open');
       window.scrollTo({top:0, behavior:'smooth'});
     });
   });
@@ -935,6 +1030,16 @@
     langBtns.forEach(btn => {
       btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang')));
     });
+
+    const mobileLangBtn = document.querySelector('.mobile-lang-btn');
+    if(mobileLangBtn){
+      mobileLangBtn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'tr';
+        const next = current === 'en' ? 'tr' : 'en';
+        setLang(next);
+        mobileLangBtn.textContent = next === 'en' ? 'TR' : 'EN';
+      });
+    }
   })();
 </script>
 
